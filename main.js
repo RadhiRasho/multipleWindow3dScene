@@ -33,9 +33,9 @@ if (new URLSearchParams(window.location.search).get("clear"))
 	localStorage.clear();
 }
 else
-{	
+{
 	// this code is essential to circumvent that some browsers preload the content of some pages before you actually hit the url
-	document.addEventListener("visibilitychange", () => 
+	document.addEventListener("visibilitychange", () =>
 	{
 		if (document.visibilityState != 'hidden' && !initialized)
 		{
@@ -54,7 +54,7 @@ else
 	{
 		initialized = true;
 
-		// add a short timeout because window.offsetX reports wrong values before a short period 
+		// add a short timeout because window.offsetX reports wrong values before a short period
 		setTimeout(() => {
 			setupScene();
 			setupWindowManager();
@@ -62,13 +62,13 @@ else
 			updateWindowShape(false);
 			render();
 			window.addEventListener('resize', resize);
-		}, 500)	
+		}, 500)
 	}
 
 	function setupScene ()
 	{
-		camera = new t.OrthographicCamera(0, 0, window.innerWidth, window.innerHeight, -10000, 10000);
-		
+		camera = new t.OrthographicCamera(0, window.innerWidth, 0, window.innerHeight, -10000, 10000);
+
 		camera.position.z = 2.5;
 		near = camera.position.z - .5;
 		far = camera.position.z + 0.5;
@@ -79,7 +79,7 @@ else
 
 		renderer = new t.WebGLRenderer({antialias: true, depthBuffer: true});
 		renderer.setPixelRatio(pixR);
-	    
+
 	  	world = new t.Object3D();
 		scene.add(world);
 
@@ -119,6 +119,23 @@ else
 
 		cubes = [];
 
+		var distance = 50;
+		var geometry = new THREE.Geometry();
+
+		for (var i = 0; i < 1000; i++) {
+
+			var vertex = new THREE.Vector3();
+
+			var theta = THREE.Math.randFloatSpread(360);
+			var phi = THREE.Math.randFloatSpread(360);
+
+			vertex.x = distance * Math.sin(theta) * Math.cos(phi);
+			vertex.y = distance * Math.sin(theta) * Math.sin(phi);
+			vertex.z = distance * Math.cos(theta);
+
+			geometry.vertices.push(vertex);
+		}
+
 		// add new cubes based on the current window setup
 		for (let i = 0; i < wins.length; i++)
 		{
@@ -128,7 +145,9 @@ else
 			c.setHSL(i * .1, 1.0, .5);
 
 			let s = 100 + i * 50;
-			let cube = new t.Mesh(new t.BoxGeometry(s, s, s), new t.MeshBasicMaterial({color: c , wireframe: true}));
+			const geometry = new t.SphereGeometry(s, 50, 50);
+			const material = new t.PointsMaterial({ color: c });
+			var cube = new t.Points(geometry, material);
 			cube.position.x = win.shape.x + (win.shape.w * .5);
 			cube.position.y = win.shape.y + (win.shape.h * .5);
 
@@ -189,7 +208,7 @@ else
 	{
 		let width = window.innerWidth;
 		let height = window.innerHeight
-		
+
 		camera = new t.OrthographicCamera(0, width, 0, height, -10000, 10000);
 		camera.updateProjectionMatrix();
 		renderer.setSize( width, height );
